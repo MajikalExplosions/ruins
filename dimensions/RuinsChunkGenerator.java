@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import majikalexplosions.ruins.OpenSimplexNoise;
 import majikalexplosions.ruins.biomes.BiomeWasteland;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
@@ -31,43 +32,114 @@ public class RuinsChunkGenerator implements IChunkGenerator {
 
     private List<Biome.SpawnListEntry> mobs;
     
-    private NormalTerrainGenerator terraingen = new NormalTerrainGenerator();
+    //private NormalTerrainGenerator terraingen = new NormalTerrainGenerator();
     
     private NoiseGeneratorOctaves pNoise;
+    private NoiseGeneratorPerlin rNoise;
+    
+    private OpenSimplexNoise osNoiseOct1, osNoiseOct2;
 
     public RuinsChunkGenerator(World worldObj) {
         this.worldObj = worldObj;
         long seed = worldObj.getSeed();
-        this.random = new Random((seed + 101) * 12719);
+        this.random = new Random((seed + 127) * 712);
+        
         //terraingen.setup(worldObj, random);
-        pNoise = new NoiseGeneratorOctaves(random, 8);
+        
+        //pNoise = new NoiseGeneratorOctaves(random, 4);
+        //rNoise = new NoiseGeneratorPerlin(random, 4);
+        
+        osNoiseOct1 = new OpenSimplexNoise(random.nextLong());
+        osNoiseOct2 = new OpenSimplexNoise(random.nextLong());
+        osNoiseOct2 = new OpenSimplexNoise(random.nextLong());
     }
-
+    
     @Override
     public Chunk generateChunk(int x, int z) {
+    	Logger.getGlobal().log(Level.INFO, "[ !! ] " + x + " " + z);
+    	
+        ChunkPrimer chunkprimer = new ChunkPrimer();
+        
+        double[] heightmap = new double[256];
+        
+        for (int x2 = 0; x2 < 16; x2++) {
+            for (int z2 = 0; z2 < 16; z2++) {
+            	
+            	double o1 = osNoiseOct1.eval((double) ((double)x + ((double)x2 / 16d)) / 8d, (double) ((double)z + ((double)z2 / 16d)) / 8d);//4d is the scale
+            	double o2 = osNoiseOct2.eval((double) ((double)x + ((double)x2 / 16d)) * 1d, (double) ((double)z + ((double)z2 / 16d)) * 1d);
+            	double o3 = osNoiseOct2.eval((double) ((double)x + ((double)x2 / 16d)) * 2d, (double) ((double)z + ((double)z2 / 16d)) * 2d);
+            	
+            	heightmap[x2 * 16 + z2] = (o1 / 2d) + (o2 / 4d) + (o3 / 4d);
+            }
+    	}
+        
+        for (int x2 = 0; x2 < 16; x2++) {
+            for (int z2 = 0; z2 < 16; z2++) {
+            	
+                int currentHeight = (int) (heightmap[x2 * 16 + z2] * 5D + 27D);//4/3 b/c program only uses 3/4 of range
+                for (int i = currentHeight; i > 1; i--)
+                	chunkprimer.setBlockState(x2, i, z2, Blocks.STONE.getDefaultState());
+                
+                if (random.nextFloat() < 0.333f)
+                	chunkprimer.setBlockState(x2, 1, z2, Blocks.BEDROCK.getDefaultState());
+                else chunkprimer.setBlockState(x2, 1, z2, Blocks.WATER.getDefaultState());
+            }
+    	}
+        
+        //Setup Biomes
+        this.biomesForGeneration = this.worldObj.getBiomeProvider().getBiomes(this.biomesForGeneration, x * 16, z * 16, 16, 16);
+        NoiseGeneratorPerlin surfaceNoise = new NoiseGeneratorPerlin(random, 4);
+        
+        double[] depthBuffer = new double[256];
+        depthBuffer = surfaceNoise.getRegion(depthBuffer, (x * 16), (z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                BiomeWasteland biome = (BiomeWasteland) biomesForGeneration[0];//Because there's only one biome to begin with
+                biome.generateBiomeBlocks(this.worldObj, this.random, chunkprimer, x * 16 + i, z * 16 + j, depthBuffer[j + i * 16]);
+            }
+        }
+    	
+        Chunk chunk = new Chunk(this.worldObj, chunkprimer, x, z);
+        
+        chunk.generateSkylightMap();
+        return chunk;
+    }
+    
+    /*
+    @Override
+    public Chunk generateChunk(int x, int z) {
+    	Logger.getGlobal().log(Level.INFO, "[ !! ] " + x + " " + z);
+    	
         ChunkPrimer chunkprimer = new ChunkPrimer();
         double[] heightmap = new double[256];
-        Logger.getGlobal().log(Level.INFO, "[ !! ] " + x + " " + z);
-        heightmap = pNoise.generateNoiseOctaves(heightmap, x, 0, z, 16, 1, 16, 1024.19D, 1024.19D, 1024.19D);//what's the range?
+        
+        
+        heightmap = pNoise.generateNoiseOctaves(heightmap, x * 4, 0, z * 4, 16, 1, 16, 8.55515D, 4.277575D, 8.55515D);//what's the range?
+        //heightmap = rNoise.getRegion(heightmap, x * 16, z * 16, 16, 16, 0.0625D, 0.0625D, 1.0D);
+        
         double max = 0;
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
             	//Logger.getGlobal().log(Level.INFO, "[ !! ] " + String.valueOf(heightmap[x2 * 16 + z2]));
             	if (heightmap[x2 * 16 + z2] > max) max = heightmap[x2 * 16 + z2];
+            	
             	heightmap[x2 * 16 + z2] = (heightmap[x2 * 16 + z2] + 100) / 200;
+            	
                 int currentHeight = (int) (heightmap[x2 * 16 + z2] * 4D + 28D);
                 for (int i = currentHeight; i > 1; i--)
                 	chunkprimer.setBlockState(x2, i, z2, Blocks.STONE.getDefaultState());
+                
                 if (random.nextFloat() < 0.333f)
                 	chunkprimer.setBlockState(x2, 1, z2, Blocks.BEDROCK.getDefaultState());
                 else chunkprimer.setBlockState(x2, 1, z2, Blocks.WATER.getDefaultState());
-                chunkprimer.setBlockState(x2, 0, z2, Blocks.BEDROCK.getDefaultState());
             }
     	}
         Logger.getGlobal().log(Level.INFO, "[ !!! ] " + max);
+        
         this.biomesForGeneration = this.worldObj.getBiomeProvider().getBiomes(this.biomesForGeneration, x * 16, z * 16, 16, 16);
-        double[] depthBuffer = new double[256];
         NoiseGeneratorPerlin surfaceNoise = new NoiseGeneratorPerlin(random, 4);
+        
+        double[] depthBuffer = new double[256];
         depthBuffer = surfaceNoise.getRegion(depthBuffer, (x * 16), (z * 16), 16, 16, 0.0625D, 0.0625D, 1.0D);
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
@@ -76,6 +148,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
             }
         }
         //this.biomesForGeneration = this.worldObj.getBiomeProvider().getBiomesForGeneration(this.biomesForGeneration, x * 4 - 2, z * 4 - 2, 10, 10);
+        */
         /*
         // Setup biomes for terraingen
         
@@ -87,11 +160,13 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         // This will replace stone with the biome specific stones
         */
         //terraingen.replaceBiomeBlocks(x, z, chunkprimer, this, biomesForGeneration);
+    	/*
         Chunk chunk = new Chunk(this.worldObj, chunkprimer, x, z);
         
         chunk.generateSkylightMap();
         return chunk;
     }
+	*/
 
     @Override
     public void populate(int x, int z) {
