@@ -37,7 +37,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     private NoiseGeneratorOctaves pNoise;
     private NoiseGeneratorPerlin rNoise;
     
-    private OpenSimplexNoise osNoiseOct1, osNoiseOct2;
+    private OpenSimplexNoise osNoiseOct1, osNoiseOct2, osNoiseOct3, osNoiseOct4;
 
     public RuinsChunkGenerator(World worldObj) {
         this.worldObj = worldObj;
@@ -51,12 +51,13 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         
         osNoiseOct1 = new OpenSimplexNoise(random.nextLong());
         osNoiseOct2 = new OpenSimplexNoise(random.nextLong());
-        osNoiseOct2 = new OpenSimplexNoise(random.nextLong());
+        osNoiseOct3 = new OpenSimplexNoise(random.nextLong());
+        osNoiseOct4 = new OpenSimplexNoise(random.nextLong());
     }
     
     @Override
     public Chunk generateChunk(int x, int z) {
-    	Logger.getGlobal().log(Level.INFO, "[ !! ] " + x + " " + z);
+    	//Logger.getGlobal().log(Level.INFO, "[ !! ] " + x + " " + z);
     	
         ChunkPrimer chunkprimer = new ChunkPrimer();
         
@@ -66,23 +67,30 @@ public class RuinsChunkGenerator implements IChunkGenerator {
             for (int z2 = 0; z2 < 16; z2++) {
             	
             	double o1 = osNoiseOct1.eval((double) ((double)x + ((double)x2 / 16d)) / 8d, (double) ((double)z + ((double)z2 / 16d)) / 8d);//4d is the scale
-            	double o2 = osNoiseOct2.eval((double) ((double)x + ((double)x2 / 16d)) * 1d, (double) ((double)z + ((double)z2 / 16d)) * 1d);
-            	double o3 = osNoiseOct2.eval((double) ((double)x + ((double)x2 / 16d)) * 2d, (double) ((double)z + ((double)z2 / 16d)) * 2d);
+            	double o2 = osNoiseOct2.eval((double) ((double)x + ((double)x2 / 16d)) / 4d, (double) ((double)z + ((double)z2 / 16d)) / 4d);
+            	double o3 = osNoiseOct3.eval((double) ((double)x + ((double)x2 / 16d)) / 2d, (double) ((double)z + ((double)z2 / 16d)) / 2d);
             	
-            	heightmap[x2 * 16 + z2] = (o1 / 2d) + (o2 / 4d) + (o3 / 4d);
+            	double o4 = osNoiseOct4.eval((double) ((double)x + ((double)x2 / 16d)) / 8d, (double) ((double)z + ((double)z2 / 16d)) / 8d);
+            	
+            	heightmap[x2 * 16 + z2] = (o1 / 2d) + (o2 / 4d) + (o3 / 8d);
+            	heightmap[x2 * 16 + z2] *= 8d / 7d;
+            	//heightmap[x2 * 16 + z2] *= o4 * 0.9d + 0.1d;//Will this make the terrain flatter in certain areas?  no it won't
+            	heightmap[x2 * 16 + z2] -= 0.5;
             }
     	}
         
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
             	
-                int currentHeight = (int) (heightmap[x2 * 16 + z2] * 5D + 27D);//4/3 b/c program only uses 3/4 of range
+                int currentHeight = (int) (heightmap[x2 * 16 + z2] * 12D + 32D);//4/3 b/c program only uses 3/4 of range
                 for (int i = currentHeight; i > 1; i--)
                 	chunkprimer.setBlockState(x2, i, z2, Blocks.STONE.getDefaultState());
                 
-                if (random.nextFloat() < 0.333f)
-                	chunkprimer.setBlockState(x2, 1, z2, Blocks.BEDROCK.getDefaultState());
-                else chunkprimer.setBlockState(x2, 1, z2, Blocks.WATER.getDefaultState());
+                if (random.nextFloat() < 0.25f)
+                	chunkprimer.setBlockState(x2, 1, z2, Blocks.WATER.getDefaultState());
+                else if (random.nextFloat() < 0.1f)
+                	chunkprimer.setBlockState(x2, 1, z2, Blocks.LAVA.getDefaultState());
+                else chunkprimer.setBlockState(x2, 1, z2, Blocks.BEDROCK.getDefaultState());
             }
     	}
         

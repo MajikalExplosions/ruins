@@ -42,7 +42,7 @@ public class BiomeWasteland extends Biome {
 
         for (int j1 = 255; j1 >= 0; --j1)
         {
-            if (j1 <= rand.nextInt(4))
+            if (j1 <= rand.nextInt(3))
             {
                 chunkPrimerIn.setBlockState(i1, j1, l, BEDROCK);
             }
