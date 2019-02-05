@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import majikalexplosions.ruins.OpenSimplexNoise;
 import majikalexplosions.ruins.biomes.BiomeWasteland;
 import majikalexplosions.ruins.buildings.BuildingGenerator;
+import net.minecraft.world.WorldServer;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -19,25 +20,29 @@ import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 
 public class RuinsChunkGenerator implements IChunkGenerator {
-	private final World worldObj;
+	private final World world;
     private Random random;
     private Biome[] biomesForGeneration;
     
-    private OpenSimplexNoise noiseMainA, noiseMainB;
+    private OpenSimplexNoise noiseMainA, noiseMainB, noiseMainC;
     
     private BuildingGenerator buildingGenerator;
     
     private static final double MAIN_SCALE_A = 1d / 8d;
-    private static final double MAIN_SCALE_B = 1d / 2d;
+    private static final double MAIN_SCALE_B = 1d / 4d;
+    private static final double MAIN_SCALE_C = 1d / 2d;
+    private static final int BUILDING_Y_VALUE = 32;
 
-    public RuinsChunkGenerator(World worldObj) {
-        this.worldObj = worldObj;
-        long seed = worldObj.getSeed();
-        this.random = new Random((seed + 127) * 712);
+    public RuinsChunkGenerator(World w) {
+        world = w;
+        long seed = world.getSeed();
+        random = new Random((seed + 127) * 712);
         
         noiseMainA = new OpenSimplexNoise(random.nextLong());
         noiseMainB = new OpenSimplexNoise(random.nextLong());
-        buildingGenerator = new BuildingGenerator(new OpenSimplexNoise(random.nextLong()), 10);
+        noiseMainC = new OpenSimplexNoise(random.nextLong());
+        
+        buildingGenerator = new BuildingGenerator(new OpenSimplexNoise(random.nextLong()), ((WorldServer) world).getStructureTemplateManager(), world.getMinecraftServer());
     }
     
     @Override
@@ -46,23 +51,21 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     	
         ChunkPrimer chunkprimer = new ChunkPrimer();
         
+        //Get heightmap
         double[] heightmap = new double[256];
-        
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
-            	heightmap[x2 * 16 + z2] = noiseMainA.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_A, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_A) / 2;
-            	heightmap[x2 * 16 + z2] += noiseMainB.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_B, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_B) / 2;
+            	heightmap[x2 * 16 + z2] = noiseMainA.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_A, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_A) / 3;
+            	heightmap[x2 * 16 + z2] += noiseMainB.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_B, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_B) / 3;
+            	heightmap[x2 * 16 + z2] += noiseMainC.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_C, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_C) / 3;
             }
     	}
         
-        double chunkAverageHeight = 0;
-        
+        //Get 
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
             	
                 int currentHeight = (int) (heightmap[x2 * 16 + z2] * 2D + 30D);//4/3 b/c program only uses 3/4 of range
-                
-                chunkAverageHeight += currentHeight;
                 
                 for (int i = currentHeight; i > 1; i--)
                 	chunkprimer.setBlockState(x2, i, z2, Blocks.STONE.getDefaultState());
@@ -75,10 +78,8 @@ public class RuinsChunkGenerator implements IChunkGenerator {
             }
     	}
         
-        chunkAverageHeight = Math.round(chunkAverageHeight / 256d);
-        
         //Setup Biomes
-        this.biomesForGeneration = this.worldObj.getBiomeProvider().getBiomes(this.biomesForGeneration, x * 16, z * 16, 16, 16);
+        biomesForGeneration = world.getBiomeProvider().getBiomes(biomesForGeneration, x * 16, z * 16, 16, 16);
         NoiseGeneratorPerlin surfaceNoise = new NoiseGeneratorPerlin(random, 4);
         
         double[] depthBuffer = new double[256];
@@ -86,15 +87,16 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 BiomeWasteland biome = (BiomeWasteland) biomesForGeneration[0];//Because there's only one biome to begin with
-                biome.generateBiomeBlocks(this.worldObj, this.random, chunkprimer, x * 16 + i, z * 16 + j, depthBuffer[j + i * 16]);
+                biome.generateBiomeBlocks(world, random, chunkprimer, x * 16 + i, z * 16 + j, depthBuffer[j + i * 16]);
             }
         }
         
         //Replace blocks with building blocks
-        buildingGenerator.getBuilding(x, z).addBlocksToWorld(worldObj, new BlockPos(x, (chunkAverageHeight), z), (new PlacementSettings()));
+        PlacementSettings ps = new PlacementSettings().setRotation(BuildingGenerator.getRotation(x, z));
+        buildingGenerator.getBuilding(x, z).addBlocksToWorld(world, new BlockPos(x, BUILDING_Y_VALUE, z), ps);
         
     	//Setup chunk object and return
-        Chunk chunk = new Chunk(this.worldObj, chunkprimer, x, z);
+        Chunk chunk = new Chunk(world, chunkprimer, x, z);
         
         chunk.generateSkylightMap();
         return chunk;
@@ -106,14 +108,14 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         int i = x * 16;
         int j = z * 16;
         BlockPos blockpos = new BlockPos(i, 0, j);
-        Biome biome = this.worldObj.getBiome(blockpos.add(16, 0, 16));
+        Biome biome = this.world.getBiome(blockpos.add(16, 0, 16));
         
         
         // Add biome decorations (like flowers, grass, trees, ...)
-        biome.decorate(this.worldObj, this.random, blockpos);
+        biome.decorate(this.world, this.random, blockpos);
 
         // Make sure animals appropriate to the biome spawn here when the chunk is generated
-        WorldEntitySpawner.performWorldGenSpawning(this.worldObj, biome, i + 8, j + 8, 16, 16, this.random);
+        WorldEntitySpawner.performWorldGenSpawning(this.world, biome, i + 8, j + 8, 16, 16, this.random);
         */
     }
 
