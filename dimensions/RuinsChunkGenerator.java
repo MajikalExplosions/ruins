@@ -94,23 +94,24 @@ public class RuinsChunkGenerator implements IChunkGenerator {
             }
         }
         
-        //Replace blocks with building blocks
-        PlacementSettings ps = new PlacementSettings().setRotation(BuildingGenerator.getRotation(x, z));
-        buildingGenerator.getBuilding(x, z).addBlocksToWorld(world, new BlockPos(x, BUILDING_Y_VALUE, z), ps);
-        
-        
     	//Setup chunk object and return
         Chunk chunk = new Chunk(world, chunkprimer, x, z);
-        
         chunk.generateSkylightMap();
+        
         return chunk;
     }
 
     @Override
-    public void populate(int x, int z) {}
+    public void populate(int x, int z) {
+    	//Logger.getGlobal().log(Level.INFO, "[!] Adding building " + x + " " + z + " to world.");
+    }
 
     @Override
-    public boolean generateStructures(Chunk chunkIn, int x, int z) { return false; }
+    public boolean generateStructures(Chunk chunkIn, int x, int z) { 
+    	PlacementSettings ps = new PlacementSettings().setRotation(BuildingGenerator.getRotation(x, z));
+        buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16, BUILDING_Y_VALUE, z * 16), ps);
+    	return false;
+	}
 
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) { return ImmutableList.of(); }

@@ -44,6 +44,7 @@ public class BuildingGenerator {
 	}
 	
 	public Template getBuilding(int x, int z) {
+		
 		if (x == 0 && z == 0) {
 			//Return spawn building
 			return getTemplateFromFile("spawn_1_1_1");
@@ -61,13 +62,15 @@ public class BuildingGenerator {
 			//normal road
 			return getTemplateFromFile("road_1_1_1");
 		}
-        double buildingID = Math.abs((double)((double)noiseBuilding.eval((double)x * BUILDING_SCALE, (double)z * BUILDING_SCALE) % (double)BUILDING_DIGIT) * (double)buildings.length * (double)(1d / (double)BUILDING_DIGIT));
-        //BuildingID is between 0 and 9 inclusive (buildingCount is 10). Can be scaled if necessary.
-        return buildings[(int) buildingID];
+        double buildingID = Math.abs((double)((double)noiseBuilding.eval((double)x * BUILDING_SCALE, (double)z * BUILDING_SCALE) % (double)BUILDING_DIGIT) * (double)buildings.length * (double)(1d / (double)BUILDING_DIGIT));//BuildingID is between 0 and 9 inclusive (buildingCount is 10). Can be scaled if necessary.
+        
+        //TODO build houses and parks
+        return getTemplateFromFile("road_1_1_1");
+        //return buildings[(int) buildingID];
 	}
 	
 	private Template getTemplateFromFile(String fileName) {
-		return templateManager.getTemplate(mcServer, new ResourceLocation(RuinsMain.MOD_ID, ":structures/" + fileName + ".nbt"));
+		return templateManager.getTemplate(mcServer, new ResourceLocation(RuinsMain.MOD_ID, fileName));
 	}
 	
 	public static Rotation getRotation(int x, int z) {
