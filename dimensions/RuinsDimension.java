@@ -12,7 +12,6 @@ public class RuinsDimension {
 	public final static String DIMENSION_NAME = "ruins";
 
     public static void init() {
-    	Logger.getGlobal().log(Level.INFO, "[ ! ] *0x2*");
     	dimensionType = DimensionType.register(DIMENSION_NAME, "_" + DIMENSION_NAME, 191, RuinsWorldProvider.class, false);
     	DimensionManager.registerDimension(191, dimensionType);
     }

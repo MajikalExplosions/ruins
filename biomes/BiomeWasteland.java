@@ -26,7 +26,6 @@ public class BiomeWasteland extends Biome {
 		
 		this.topBlock = Blocks.SANDSTONE.getDefaultState();
         this.fillerBlock = Blocks.SANDSTONE.getDefaultState();
-        Logger.getGlobal().log(Level.INFO, "[ ! ] *0x4*");
 	}
 	
 	public void generateBiomeBlocks(World worldIn, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, double noiseVal)//Slightly modified for it's own purposes
@@ -42,7 +41,7 @@ public class BiomeWasteland extends Biome {
 
         for (int j1 = 255; j1 >= 0; --j1)
         {
-            if (j1 <= rand.nextInt(3))
+            if (j1 <= rand.nextInt(3))//Down from nextInt(5)
             {
                 chunkPrimerIn.setBlockState(i1, j1, l, BEDROCK);
             }

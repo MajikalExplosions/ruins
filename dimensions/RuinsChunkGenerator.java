@@ -2,6 +2,9 @@ package majikalexplosions.ruins.dimensions;
 
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.common.collect.ImmutableList;
 
 import majikalexplosions.ruins.OpenSimplexNoise;
@@ -34,6 +37,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     private static final int BUILDING_Y_VALUE = 32;
 
     public RuinsChunkGenerator(World w) {
+    	//Logger.getGlobal().log(Level.INFO, "[!] Initializing chunk generator...");
         world = w;
         long seed = world.getSeed();
         random = new Random((seed + 127) * 712);
@@ -47,7 +51,6 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     
     @Override
     public Chunk generateChunk(int x, int z) {
-    	//Logger.getGlobal().log(Level.INFO, "[ !! ] " + x + " " + z);
     	
         ChunkPrimer chunkprimer = new ChunkPrimer();
         
@@ -61,7 +64,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
             }
     	}
         
-        //Get 
+        //Set base blocks
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
             	
@@ -95,6 +98,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         PlacementSettings ps = new PlacementSettings().setRotation(BuildingGenerator.getRotation(x, z));
         buildingGenerator.getBuilding(x, z).addBlocksToWorld(world, new BlockPos(x, BUILDING_Y_VALUE, z), ps);
         
+        
     	//Setup chunk object and return
         Chunk chunk = new Chunk(world, chunkprimer, x, z);
         
@@ -103,42 +107,20 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     }
 
     @Override
-    public void populate(int x, int z) {
-    	/*
-        int i = x * 16;
-        int j = z * 16;
-        BlockPos blockpos = new BlockPos(i, 0, j);
-        Biome biome = this.world.getBiome(blockpos.add(16, 0, 16));
-        
-        
-        // Add biome decorations (like flowers, grass, trees, ...)
-        biome.decorate(this.world, this.random, blockpos);
-
-        // Make sure animals appropriate to the biome spawn here when the chunk is generated
-        WorldEntitySpawner.performWorldGenSpawning(this.world, biome, i + 8, j + 8, 16, 16, this.random);
-        */
-    }
+    public void populate(int x, int z) {}
 
     @Override
-    public boolean generateStructures(Chunk chunkIn, int x, int z) {
-        return false;
-    }
+    public boolean generateStructures(Chunk chunkIn, int x, int z) { return false; }
 
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) { return ImmutableList.of(); }
     
     @Override
-    public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored) {
-        return null;
-    }
+    public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored) { return null; }
 
     @Override
-    public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
-        return false;
-    }
+    public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) { return false; }
 
     @Override
-    public void recreateStructures(Chunk chunkIn, int x, int z) {
-
-    }
+    public void recreateStructures(Chunk chunkIn, int x, int z) {}
 }
