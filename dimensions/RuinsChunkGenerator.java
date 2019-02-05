@@ -2,11 +2,7 @@ package majikalexplosions.ruins.dimensions;
 
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import majikalexplosions.ruins.OpenSimplexNoise;
 import majikalexplosions.ruins.biomes.BiomeWasteland;
@@ -14,17 +10,13 @@ import majikalexplosions.ruins.buildings.BuildingGenerator;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldEntitySpawner;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
-import net.minecraft.world.gen.MapGenBase;
-import net.minecraft.world.gen.NoiseGeneratorOctaves;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
+import net.minecraft.world.gen.structure.template.PlacementSettings;
 
 public class RuinsChunkGenerator implements IChunkGenerator {
 	private final World worldObj;
@@ -37,9 +29,6 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     
     private static final double MAIN_SCALE_A = 1d / 8d;
     private static final double MAIN_SCALE_B = 1d / 2d;
-    private static final double BUILDING_SCALE = 1d / 4d;
-    
-    private static final double BUILDING_DIGIT = 1d / 1000000d;
 
     public RuinsChunkGenerator(World worldObj) {
         this.worldObj = worldObj;
@@ -66,10 +55,15 @@ public class RuinsChunkGenerator implements IChunkGenerator {
             }
     	}
         
+        double chunkAverageHeight = 0;
+        
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
             	
                 int currentHeight = (int) (heightmap[x2 * 16 + z2] * 2D + 30D);//4/3 b/c program only uses 3/4 of range
+                
+                chunkAverageHeight += currentHeight;
+                
                 for (int i = currentHeight; i > 1; i--)
                 	chunkprimer.setBlockState(x2, i, z2, Blocks.STONE.getDefaultState());
                 
@@ -80,6 +74,8 @@ public class RuinsChunkGenerator implements IChunkGenerator {
                 else chunkprimer.setBlockState(x2, 1, z2, Blocks.BEDROCK.getDefaultState());
             }
     	}
+        
+        chunkAverageHeight = Math.round(chunkAverageHeight / 256d);
         
         //Setup Biomes
         this.biomesForGeneration = this.worldObj.getBiomeProvider().getBiomes(this.biomesForGeneration, x * 16, z * 16, 16, 16);
@@ -93,7 +89,11 @@ public class RuinsChunkGenerator implements IChunkGenerator {
                 biome.generateBiomeBlocks(this.worldObj, this.random, chunkprimer, x * 16 + i, z * 16 + j, depthBuffer[j + i * 16]);
             }
         }
-    	
+        
+        //Replace blocks with building blocks
+        buildingGenerator.getBuilding(x, z).addBlocksToWorld(worldObj, new BlockPos(x, (chunkAverageHeight), z), (new PlacementSettings()));
+        
+    	//Setup chunk object and return
         Chunk chunk = new Chunk(this.worldObj, chunkprimer, x, z);
         
         chunk.generateSkylightMap();
@@ -102,12 +102,13 @@ public class RuinsChunkGenerator implements IChunkGenerator {
 
     @Override
     public void populate(int x, int z) {
+    	/*
         int i = x * 16;
         int j = z * 16;
         BlockPos blockpos = new BlockPos(i, 0, j);
         Biome biome = this.worldObj.getBiome(blockpos.add(16, 0, 16));
         
-        /*
+        
         // Add biome decorations (like flowers, grass, trees, ...)
         biome.decorate(this.worldObj, this.random, blockpos);
 
