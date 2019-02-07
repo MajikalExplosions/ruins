@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import majikalexplosions.ruins.biomes.*;
+import majikalexplosions.ruins.dimensions.CityWorldGenerator;
 import majikalexplosions.ruins.dimensions.RuinsDimension;
 import majikalexplosions.ruins.dimensions.RuinsWorldType;
 import net.minecraft.world.biome.Biome;
@@ -15,6 +16,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod.EventBusSubscriber
 public class CommonProxy {
@@ -24,7 +26,9 @@ public class CommonProxy {
 		BiomeManager.addBiome(BiomeType.WARM, new BiomeEntry(bWasteland, 1500));
 		bWasteland.setRegistryName(bWasteland.getBiomeName().toLowerCase().replace(' ', '_'));
 		BiomeManager.addSpawnBiome(bWasteland);
-		Logger.getGlobal().log(Level.INFO, "[ ! ] *0x0*");
+		
+		GameRegistry.registerWorldGenerator(new CityWorldGenerator(), 1);
+		
 		RuinsDimension.init();
 		RuinsWorldType rwt = new RuinsWorldType();
 	}
@@ -39,7 +43,6 @@ public class CommonProxy {
 	
 	@SubscribeEvent
 	public void registerBiomes(RegistryEvent.Register<Biome> event) {
-		Logger.getGlobal().log(Level.INFO, "[ ! ] *0x5*");
 		event.getRegistry().register(bWasteland);
 		BiomeDictionary.addTypes(bWasteland, BiomeDictionary.Type.SANDY, BiomeDictionary.Type.HOT, BiomeDictionary.Type.WASTELAND);
 	}

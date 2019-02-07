@@ -20,7 +20,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
-import net.minecraft.world.gen.structure.template.PlacementSettings;
 
 public class RuinsChunkGenerator implements IChunkGenerator {
 	private final World world;
@@ -29,12 +28,10 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     
     private OpenSimplexNoise noiseMainA, noiseMainB, noiseMainC;
     
-    private BuildingGenerator buildingGenerator;
     
     private static final double MAIN_SCALE_A = 1d / 8d;
     private static final double MAIN_SCALE_B = 1d / 4d;
     private static final double MAIN_SCALE_C = 1d / 2d;
-    private static final int BUILDING_Y_VALUE = 32;
 
     public RuinsChunkGenerator(World w) {
     	//Logger.getGlobal().log(Level.INFO, "[!] Initializing chunk generator...");
@@ -46,8 +43,6 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         noiseMainA = new OpenSimplexNoise(random.nextLong());
         noiseMainB = new OpenSimplexNoise(random.nextLong());
         noiseMainC = new OpenSimplexNoise(random.nextLong());
-        
-        buildingGenerator = new BuildingGenerator(new OpenSimplexNoise(random.nextLong()), ((WorldServer) world).getStructureTemplateManager(), world.getMinecraftServer());
     }
     
     @Override
@@ -108,11 +103,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     }
 
     @Override
-    public boolean generateStructures(Chunk chunkIn, int x, int z) { 
-    	PlacementSettings ps = new PlacementSettings().setRotation(BuildingGenerator.getRotation(x, z));
-        buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16, BUILDING_Y_VALUE, z * 16), ps);
-    	return false;
-	}
+    public boolean generateStructures(Chunk chunkIn, int x, int z) { return false; }
 
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) { return ImmutableList.of(); }

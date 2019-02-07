@@ -20,8 +20,6 @@ public class BuildingGenerator {
     
     private final Template[] buildings;
     private final String[] templateFileNames = {
-    		"road_1_1_1",
-    		"road_1_1_2",
     		"house_1_1_1",
     		"house_1_1_2"/*,
     		"house_1_1_3",
@@ -47,7 +45,7 @@ public class BuildingGenerator {
 	}
 	
 	public Template getBuilding(int x, int z) {
-		/*
+		
 		if (x == 0 && z == 0) {
 			//Return spawn building
 			return getTemplateFromFile("spawn_1_1_1");
@@ -66,10 +64,10 @@ public class BuildingGenerator {
 			return getTemplateFromFile("road_1_1_1");
 		}
         double buildingID = Math.abs((double)((double)noiseBuilding.eval((double)x * BUILDING_SCALE, (double)z * BUILDING_SCALE) % (double)BUILDING_DIGIT) * (double)buildings.length * (double)(1d / (double)BUILDING_DIGIT));//BuildingID is between 0 and 9 inclusive (buildingCount is 10). Can be scaled if necessary.
-        */
+        
         //TODO build houses and parks
-        return buildings[0];
-        //return buildings[(int) buildingID];
+        //return buildings[0];
+        return buildings[(int) buildingID % 2];
 	}
 	
 	private Template getTemplateFromFile(String fileName) {
