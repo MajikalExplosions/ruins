@@ -27,7 +27,7 @@ public class CommonProxy {
 		bWasteland.setRegistryName(bWasteland.getBiomeName().toLowerCase().replace(' ', '_'));
 		BiomeManager.addSpawnBiome(bWasteland);
 		
-		GameRegistry.registerWorldGenerator(new CityWorldGenerator(), 1);
+		GameRegistry.registerWorldGenerator(new CityWorldGenerator(), 19000);
 		
 		RuinsDimension.init();
 		RuinsWorldType rwt = new RuinsWorldType();
