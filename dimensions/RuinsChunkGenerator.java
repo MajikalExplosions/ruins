@@ -39,6 +39,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     public RuinsChunkGenerator(World w) {
     	//Logger.getGlobal().log(Level.INFO, "[!] Initializing chunk generator...");
         world = w;
+        world.setSpawnPoint(new BlockPos(0, 36, 0));
         long seed = world.getSeed();
         random = new Random((seed + 127) * 712);
         

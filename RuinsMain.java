@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class RuinsMain {
 	public static final String MOD_ID = "majikalexplosions_ruins";
 	public static final String MOD_NAME = "Ruins Dimension";
-	public static final String MOD_VERSION = "v0.1.0";
+	public static final String MOD_VERSION = "0.1.0";
 	public static final String MOD_VERSION_NAME = "Abydosaurus";
 	
 	

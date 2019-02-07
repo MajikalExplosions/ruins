@@ -1,6 +1,7 @@
 package majikalexplosions.ruins.buildings;
 
 import majikalexplosions.ruins.OpenSimplexNoise;
+
 import majikalexplosions.ruins.RuinsMain;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -19,8 +20,10 @@ public class BuildingGenerator {
     
     private final Template[] buildings;
     private final String[] templateFileNames = {
+    		"road_1_1_1",
+    		"road_1_1_2",
     		"house_1_1_1",
-    		"house_1_1_2",
+    		"house_1_1_2"/*,
     		"house_1_1_3",
     		"house_1_1_4",
     		"house_1_1_5",
@@ -28,7 +31,7 @@ public class BuildingGenerator {
     		"house_1_1_7",
     		"park_1_1_1",
     		"park_1_1_2",
-    		"park_1_1_3"
+    		"park_1_1_3"*/
     };
     
 	
@@ -44,7 +47,7 @@ public class BuildingGenerator {
 	}
 	
 	public Template getBuilding(int x, int z) {
-		
+		/*
 		if (x == 0 && z == 0) {
 			//Return spawn building
 			return getTemplateFromFile("spawn_1_1_1");
@@ -63,9 +66,9 @@ public class BuildingGenerator {
 			return getTemplateFromFile("road_1_1_1");
 		}
         double buildingID = Math.abs((double)((double)noiseBuilding.eval((double)x * BUILDING_SCALE, (double)z * BUILDING_SCALE) % (double)BUILDING_DIGIT) * (double)buildings.length * (double)(1d / (double)BUILDING_DIGIT));//BuildingID is between 0 and 9 inclusive (buildingCount is 10). Can be scaled if necessary.
-        
+        */
         //TODO build houses and parks
-        return getTemplateFromFile("road_1_1_1");
+        return buildings[0];
         //return buildings[(int) buildingID];
 	}
 	
@@ -76,6 +79,7 @@ public class BuildingGenerator {
 	public static Rotation getRotation(int x, int z) {
 		
 		//Parse roads and spawn buildings
+		/*
 		if (x == 0 && z == 0) {
 			return Rotation.NONE;
 		}
@@ -91,6 +95,7 @@ public class BuildingGenerator {
 		else {
 			//TODO add in rotation code for buildings
 		}
+		*/
 		return Rotation.NONE;//should never run as long as the else loop returns stuff(which it should)
 	}
 }
