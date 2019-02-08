@@ -1,11 +1,15 @@
 package majikalexplosions.ruins.buildings;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import majikalexplosions.ruins.OpenSimplexNoise;
 
 import majikalexplosions.ruins.RuinsMain;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
+import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraft.world.gen.structure.template.TemplateManager;
 
@@ -15,9 +19,10 @@ public class BuildingGenerator {
 	private TemplateManager templateManager;
 	private MinecraftServer mcServer;
 	
-	private static final double BUILDING_SCALE = 1d / 16d;
+	private static final double BUILDING_SCALE = 1d / 32d;
 	private static final double BUILDING_TYPE_DIGIT = 1d / 1d;
 	private static final double BUILDING_NUMBER_DIGIT = 1d / 10000d;
+	private static final double BUILDING_ROTATION_DIGIT = 1d / 100000d;
     
     private final Template[] T_ROADS;
     private final Template[] T_HOUSES;
@@ -79,7 +84,9 @@ public class BuildingGenerator {
 	
 	public Template getBuilding(int x, int z) {
 		
-		
+		//shift the buildings back
+		x--;
+		z--;
 		if (x == 0 && z == 0) { return T_SPAWN[0]; }//main spawn building
 		if (x <= 1 && z <= 1 && x >= -1 && z >= -1) { return T_SPAWN[1]; }//outer spawn tiles
 		
@@ -97,9 +104,8 @@ public class BuildingGenerator {
     	}
         
         double buildingType = getDigit(noiseValue, BUILDING_TYPE_DIGIT);
-        
         //City tiles
-        if ((int)buildingType == 9 || (int) buildingType == 8) {
+        if (buildingType > 0.8d) {
         	double num = getDigit(noiseValue, BUILDING_NUMBER_DIGIT) * T_CITY.length;
         	return T_CITY[(int) num];
         }
@@ -112,28 +118,130 @@ public class BuildingGenerator {
 		return templateManager.getTemplate(mcServer, new ResourceLocation(RuinsMain.MOD_ID, fileName));
 	}
 	
-	public static Rotation getRotation(int x, int z) {
-		//TODO fix the fact that rotations tend to move the buildings around for some reason.
+	public PlacementSettings getPlacementSettings(int x, int z) {
+		PlacementSettings ps = new PlacementSettings();
 		
-		/*
+		//shift buildings back.
+		x--;
+		z--;
+		
+		
+		//Spawn
 		if (x == 0 && z == 0) {
-			return Rotation.NONE;
+			ps.setRotation(Rotation.NONE);
 		}
 		else if (x <= 1 && z <= 1 && x >= -1 && z >= -1) {
-			//Return spawn building outskirts
+			ps.setRotation(Rotation.NONE);
 		}
+		
+		//Roads
 		else if (Math.abs(x) % 4 == 2) {//the following two cases are right; I checked.
-			return Rotation.CLOCKWISE_90;
+			ps.setRotation(Rotation.CLOCKWISE_90);
 		}
 		else if (Math.abs(z) % 4 == 2) {
-			return Rotation.NONE;
+			ps.setRotation(Rotation.NONE);
 		}
-		else {
-			//TODO add in rotation code for buildings
-		}
-		*/
 		
-		return Rotation.NONE;//should never run as long as the else loop returns stuff(which it should)
+		//Parks
+		else if (Math.abs(x) % 4 == 0 && Math.abs(z) % 4 == 0) {
+			ps.setRotation(Rotation.values()[(int) getDigit(noiseBuilding.eval((double)x * BUILDING_SCALE, (double)z * BUILDING_SCALE), BUILDING_ROTATION_DIGIT)]);
+		}
+		
+		//Buildings; this is probably a terrible way to do it but whatever
+		else {
+			if (x > 0) {
+				if (z > 0) {
+					if (Math.abs(x) % 4 == 1) {
+						ps.setRotation(Rotation.CLOCKWISE_180);
+					}
+					else if (Math.abs(x) % 4 == 3) {
+						ps.setRotation(Rotation.NONE);
+					}
+					else if (Math.abs(z) % 4 == 1) {
+						ps.setRotation(Rotation.COUNTERCLOCKWISE_90);
+					}
+					else {
+						ps.setRotation(Rotation.CLOCKWISE_90);
+					}
+				}
+				else {
+					if (Math.abs(x) % 4 == 1) {
+						ps.setRotation(Rotation.CLOCKWISE_180);
+					}
+					else if (Math.abs(x) % 4 == 3) {
+						ps.setRotation(Rotation.NONE);
+					}
+					else if (Math.abs(z) % 4 == 1) {
+						ps.setRotation(Rotation.CLOCKWISE_90);
+					}
+					else {
+						ps.setRotation(Rotation.COUNTERCLOCKWISE_90);
+					}
+				}
+			}
+			else {
+				if (z > 0) {
+					if (Math.abs(x) % 4 == 1) {
+						ps.setRotation(Rotation.NONE);
+					}
+					else if (Math.abs(x) % 4 == 3) {
+						ps.setRotation(Rotation.CLOCKWISE_180);
+					}
+					else if (Math.abs(z) % 4 == 1) {
+						ps.setRotation(Rotation.COUNTERCLOCKWISE_90);
+					}
+					else {
+						ps.setRotation(Rotation.CLOCKWISE_90);
+					}
+				}
+				else {
+					if (Math.abs(x) % 4 == 1) {
+						ps.setRotation(Rotation.NONE);
+					}
+					else if (Math.abs(x) % 4 == 3) {
+						ps.setRotation(Rotation.CLOCKWISE_180);
+					}
+					else if (Math.abs(z) % 4 == 1) {
+						ps.setRotation(Rotation.CLOCKWISE_90);
+					}
+					else {
+						ps.setRotation(Rotation.COUNTERCLOCKWISE_90);
+					}
+				}
+			}
+		}
+		
+		return ps;//should never run as long as the else loop returns stuff(which it should)
+	}
+	
+	public int getXOffset(Rotation r) {
+		int val = 8;
+		switch(r) {
+		case CLOCKWISE_180:
+		case CLOCKWISE_90:
+			val += 15;
+			break;
+		case COUNTERCLOCKWISE_90:
+		case NONE:
+		default:
+			break;
+		}
+		return val;
+	}
+	
+	public int getZOffset(Rotation r) {
+		int val = 8;
+		switch(r) {
+		case CLOCKWISE_180:
+		case COUNTERCLOCKWISE_90:
+			val += 15;
+			break;
+		case CLOCKWISE_90:
+		case NONE:
+		default:
+			break;
+		}
+		return val;
 	}
 	
 	private static double getDigit(double num, double digit) {

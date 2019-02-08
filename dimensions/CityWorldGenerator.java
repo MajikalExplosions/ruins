@@ -23,9 +23,8 @@ public class CityWorldGenerator implements IWorldGenerator {
 		
 		//Initialize buildingGenerator if necessary.
 		if (buildingGenerator == null) buildingGenerator = new BuildingGenerator(new OpenSimplexNoise(random.nextLong()), ((WorldServer) world).getStructureTemplateManager(), world.getMinecraftServer());
-		
-		PlacementSettings ps = new PlacementSettings().setRotation(BuildingGenerator.getRotation(x, z));
-        buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + 8, BUILDING_Y_VALUE, z * 16 + 8), ps);
+		PlacementSettings ps = buildingGenerator.getPlacementSettings(x, z);
+        buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), BUILDING_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
 	}
 	
 }
