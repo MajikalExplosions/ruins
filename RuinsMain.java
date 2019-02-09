@@ -1,14 +1,22 @@
 package majikalexplosions.ruins;
 
+import majikalexplosions.ruins.blocks.rails.BlockDelayedDetectorRail;
+import majikalexplosions.ruins.blocks.rails.BlockOneWayRail;
 import majikalexplosions.ruins.proxy.CommonProxy;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod(modid = RuinsMain.MOD_ID, name = RuinsMain.MOD_NAME, version = RuinsMain.MOD_VERSION + " " + RuinsMain.MOD_VERSION_NAME)
 @Mod.EventBusSubscriber
@@ -18,6 +26,7 @@ public class RuinsMain {
 	public static final String MOD_VERSION = "0.1.0";
 	public static final String MOD_VERSION_NAME = "Abydosaurus";
 	
+	public static ModBlocks blocks = new ModBlocks();
 	
 	@SidedProxy(serverSide = "majikalexplosions.ruins.proxy.CommonProxy", clientSide = "majikalexplosions.ruins.proxy.ClientProxy")
 	public static CommonProxy proxy;
@@ -45,7 +54,29 @@ public class RuinsMain {
 	
 	
 	@Mod.EventBusSubscriber
-	public static class RegistrationHandler {
+	public static class EventHandler {
 		
+		@SubscribeEvent
+		public static void registerBlocks(RegistryEvent.Register<Block> event) {
+			event.getRegistry().registerAll(
+					blocks.delayedDetectorRail,
+					blocks.oneWayPoweredRail
+			);
+		}
+		
+		@SubscribeEvent
+		public static void registerItems(RegistryEvent.Register<Item> event) {
+			event.getRegistry().registerAll(
+					blocks.delayedDetectorRail.createItemBlock(),
+					blocks.oneWayPoweredRail.createItemBlock()
+			);
+		}
+		@SubscribeEvent
+		public static void registerModels(ModelRegistryEvent event) {
+			blocks.delayedDetectorRail.initItemModel();
+			blocks.oneWayPoweredRail.initItemModel();
+		}
+
 	}
+
 }

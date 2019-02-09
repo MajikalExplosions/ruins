@@ -21,12 +21,6 @@ public class BlockOneWayRail extends BlockRailCustomBase {
 	}
 	
 	@Override
-	public float getRailMaxSpeed(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos)
-    {
-        return 1.2f;
-    }
-	
-	@Override
 	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
 		if (entity instanceof EntityMinecart) {
 			EntityMinecart minecart = (EntityMinecart)entity;

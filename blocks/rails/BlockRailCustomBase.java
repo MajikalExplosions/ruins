@@ -10,6 +10,7 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.Item;
@@ -45,7 +46,8 @@ public abstract class BlockRailCustomBase extends BlockRailBase {
 		setDefaultState(blockState.getBaseState()
 				.withProperty(SHAPE, EnumRailDirection.NORTH_SOUTH)
 				.withProperty(FACING, EnumFacing.NORTH)
-				.withProperty(POWERED, true));
+				.withProperty(POWERED, false));
+		this.setCreativeTab(CreativeTabs.TRANSPORTATION);
 	}
 
 	public Item createItemBlock() {
@@ -77,15 +79,15 @@ public abstract class BlockRailCustomBase extends BlockRailBase {
 		EnumFacing facing = state.getValue(FACING);
 		if (dir == BlockRailBase.EnumRailDirection.EAST_WEST) {
 			if (facing == EnumFacing.EAST) {
-				minecart.motionX = 0.2d;
+				minecart.motionX = this.getRailMaxSpeed(world, minecart, pos);
 			} else {
-				minecart.motionX = -0.2d;
+				minecart.motionX = -this.getRailMaxSpeed(world, minecart, pos);
 			}
 		} else if (dir == BlockRailBase.EnumRailDirection.NORTH_SOUTH) {
 			if (facing == EnumFacing.SOUTH) {
-				minecart.motionZ = 0.2d;
+				minecart.motionZ = this.getRailMaxSpeed(world, minecart, pos);
 			} else {
-				minecart.motionZ = -0.2d;
+				minecart.motionZ = -this.getRailMaxSpeed(world, minecart, pos);
 			}
 		}
 	}
