@@ -7,6 +7,8 @@ import majikalexplosions.ruins.biomes.*;
 import majikalexplosions.ruins.dimensions.CityWorldGenerator;
 import majikalexplosions.ruins.dimensions.RuinsDimension;
 import majikalexplosions.ruins.dimensions.RuinsWorldType;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeManager;
@@ -46,4 +48,10 @@ public class CommonProxy {
 		event.getRegistry().register(bWasteland);
 		BiomeDictionary.addTypes(bWasteland, BiomeDictionary.Type.SANDY, BiomeDictionary.Type.HOT, BiomeDictionary.Type.WASTELAND);
 	}
+	
+	public void registerItemModel(Block block, int meta, String id) {
+		registerItemModel(Item.getItemFromBlock(block), meta, id);
+	}
+	
+	public void registerItemModel(Item item, int meta, String id) {}
 }
