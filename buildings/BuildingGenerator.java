@@ -85,8 +85,8 @@ public class BuildingGenerator {
 	public Template getBuilding(int x, int z) {
 		
 		//shift the buildings back
-		x--;
-		z--;
+		x -= 2;
+		z -= 2;
 		if (x == 0 && z == 0) { return T_SPAWN[0]; }//main spawn building
 		if (x <= 1 && z <= 1 && x >= -1 && z >= -1) { return T_SPAWN[1]; }//outer spawn tiles
 		
@@ -122,8 +122,8 @@ public class BuildingGenerator {
 		PlacementSettings ps = new PlacementSettings();
 		
 		//shift buildings back.
-		x--;
-		z--;
+		x -= 2;
+		z -= 2;
 		
 		
 		//Spawn

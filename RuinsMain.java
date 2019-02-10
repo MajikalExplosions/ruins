@@ -3,12 +3,14 @@ package majikalexplosions.ruins;
 import majikalexplosions.ruins.blocks.rails.BlockDelayedDetectorRail;
 import majikalexplosions.ruins.blocks.rails.BlockOneWayRail;
 import majikalexplosions.ruins.proxy.CommonProxy;
+import majikalexplosions.ruins.tileentity.TileEntityDelayedDetectorRail;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -62,6 +64,8 @@ public class RuinsMain {
 					blocks.delayedDetectorRail,
 					blocks.oneWayPoweredRail
 			);
+			
+			GameRegistry.registerTileEntity(TileEntityDelayedDetectorRail.class, new ResourceLocation(RuinsMain.MOD_ID, "delayed_detector_rail"));
 		}
 		
 		@SubscribeEvent
