@@ -17,14 +17,22 @@ public class CityWorldGenerator implements IWorldGenerator {
 	
 	private static BuildingGenerator buildingGenerator = null;
 	private static final int BUILDING_Y_VALUE = 32 - 2;//There's a two block buffer under the structures.
+	private static final int RAILS_Y_VALUE = 32 - 2 + 3;//Rails start 3 blocks up from road.
 	
 	@Override
 	public void generate(Random random, int x, int z, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
 		
 		//Initialize buildingGenerator if necessary.
 		if (buildingGenerator == null) buildingGenerator = new BuildingGenerator(new OpenSimplexNoise(random.nextLong()), ((WorldServer) world).getStructureTemplateManager(), world.getMinecraftServer());
+		
 		PlacementSettings ps = buildingGenerator.getPlacementSettings(x, z);
-        buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), BUILDING_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
+        
+		//Place buildings
+		buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), BUILDING_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
+		
+		//Place rails
+		if (buildingGenerator.hasRails(x, z)) buildingGenerator.getRails(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), RAILS_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
+        
 	}
 	
 }

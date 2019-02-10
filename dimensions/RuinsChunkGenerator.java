@@ -98,9 +98,7 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     }
 
     @Override
-    public void populate(int x, int z) {
-    	//Logger.getGlobal().log(Level.INFO, "[!] Adding building " + x + " " + z + " to world.");
-    }
+    public void populate(int x, int z) {}
 
     @Override
     public boolean generateStructures(Chunk chunkIn, int x, int z) { return false; }

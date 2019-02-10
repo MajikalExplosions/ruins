@@ -29,6 +29,7 @@ public class BuildingGenerator {
     private final Template[] T_PARKS;
     private final Template[] T_SPAWN;
     private final Template[] T_CITY;
+    private final Template[] T_RAILS;
     
   //TODO build more houses and parks
     private final String[] P_SPAWN = {
@@ -60,6 +61,12 @@ public class BuildingGenerator {
     		"city_1_1_1"
     };
     
+    private final String[] P_RAILS = {
+    		"rails_1_1_1",
+    		"rails_1_1_2",
+    		"rails_1_1_3"
+    };
+    
 	
 	public BuildingGenerator(OpenSimplexNoise nB, TemplateManager tm, MinecraftServer ms) {
 		noiseBuilding = nB;
@@ -72,17 +79,19 @@ public class BuildingGenerator {
 		T_HOUSES = new Template[P_HOUSES.length + P_PARKS.length];
 		T_PARKS = new Template[P_PARKS.length];
 		T_CITY = new Template[P_CITY.length];
+		T_RAILS = new Template[P_RAILS.length];
 		
 		for (int i = 0; i < P_SPAWN.length; i++) { T_SPAWN[i] = getTemplateFromFile(P_SPAWN[i]); }//Load all spawn buildings to templates
 		for (int i = 0; i < P_ROADS.length; i++) { T_ROADS[i] = getTemplateFromFile(P_ROADS[i]); }//Load all roads to templates
 		for (int i = 0; i < P_HOUSES.length; i++) { T_HOUSES[i] = getTemplateFromFile(P_HOUSES[i]); }//Load all houses to templates
 		for (int i = 0; i < P_PARKS.length; i++) { T_PARKS[i] = getTemplateFromFile(P_PARKS[i]); }//Load all parks to templates
 		for (int i = 0; i < P_CITY.length; i++) { T_CITY[i] = getTemplateFromFile(P_CITY[i]); }//Load all city tiles to templates
-		
+		for (int i = 0; i < P_RAILS.length; i++) { T_RAILS[i] = getTemplateFromFile(P_RAILS[i]); }//Load all rail tiles to templates
 		for (int i = 0; i < P_PARKS.length; i++) { T_HOUSES[i + P_HOUSES.length] = T_PARKS[i]; }//Adds park tiles to house tile set.
+		
 	}
 	
-	public Template getBuilding(int x, int z) {
+public Template getBuilding(int x, int z) {
 		
 		//shift the buildings back
 		x -= 2;
@@ -112,6 +121,24 @@ public class BuildingGenerator {
         
         double num = getDigit(noiseValue, BUILDING_NUMBER_DIGIT) * T_HOUSES.length;
     	return T_HOUSES[(int) num];
+	}
+	
+	public Template getRails(int x, int z) {
+		
+		//shift the buildings back
+		x -= 2;
+		z -= 2;
+		if (! hasRails(x, z)) return null;
+		
+		if (Math.abs(x) % 4 == 2 && Math.abs(z) % 4 == 2) { return T_RAILS[2]; }//station
+		if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) { return T_ROADS[0]; }//straight
+		return T_RAILS[1];//should never happen
+	}
+	
+	public boolean hasRails(int x, int z) {
+		if (Math.abs(x) % 4 == 2 && Math.abs(z) % 4 == 2) return true;//intersection
+		if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) return true;//straight road
+		return false;
 	}
 	
 	private Template getTemplateFromFile(String fileName) {
