@@ -28,9 +28,13 @@ public class BlockOneWayRail extends BlockRailCustomBase {
 			if (powered) {
 				propelMinecart(world, pos, state, minecart);
 			} else {
-				minecart.motionX = 0;
+				if (minecart.motionX > this.getRailMaxSpeed(world, minecart, pos) / 8) minecart.motionX -= this.getRailMaxSpeed(world, minecart, pos) / 8;
+				else if (minecart.motionX < -this.getRailMaxSpeed(world, minecart, pos) / 8) minecart.motionX += this.getRailMaxSpeed(world, minecart, pos) / 8;
+				else minecart.motionX = 0;
 				minecart.motionY = 0;
-				minecart.motionZ = 0;
+				if (minecart.motionZ > this.getRailMaxSpeed(world, minecart, pos) / 8) minecart.motionZ -= this.getRailMaxSpeed(world, minecart, pos) / 8;
+				else if (minecart.motionZ < -this.getRailMaxSpeed(world, minecart, pos) / 8) minecart.motionZ += this.getRailMaxSpeed(world, minecart, pos) / 8;
+				else minecart.motionZ = 0;
 				world.scheduleUpdate(new BlockPos(pos), this, tickRate(world));
 			}
 		}

@@ -33,7 +33,7 @@ public class RuinsWorldProvider extends WorldProvider {
     @Override
     public boolean isSurfaceWorld()
     {
-        return false;
+        return true;
     }
     
     @Override
