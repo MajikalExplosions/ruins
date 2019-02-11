@@ -1,6 +1,7 @@
 package majikalexplosions.ruins.dimensions;
 
 import majikalexplosions.ruins.proxy.CommonProxy;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.BiomeProvider;
@@ -25,19 +26,18 @@ public class RuinsWorldProvider extends WorldProvider {
     }
     
     @Override
+    public BlockPos getRandomizedSpawnPoint() {
+    	return new BlockPos(0, CityWorldGenerator.BUILDING_Y_VALUE + 1, 0);
+    }
+    
+    @Override
     public boolean isSurfaceWorld()
     {
-        return true;
+        return false;
     }
     
     @Override
     public BiomeProvider getBiomeProvider() {
     	return new BiomeProviderSingle(CommonProxy.bWasteland);
-    }
-    
-    @Override
-    public float getCloudHeight()
-    {
-        return 256.0F;
     }
 }

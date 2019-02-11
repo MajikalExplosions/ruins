@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 
 public class BlockOneWayRail extends BlockRailCustomBase {
 	
-	//TODO change this
+	
 	public BlockOneWayRail() {
 		setRegistryName("one_way_powered_rail");
 		setUnlocalizedName(getRegistryName().toString());

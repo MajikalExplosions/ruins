@@ -78,18 +78,17 @@ public abstract class BlockRailCustomBase extends BlockRailBase {
 	protected void propelMinecart(World world, BlockPos pos, IBlockState state, EntityMinecart minecart) {
 		BlockRailBase.EnumRailDirection dir = getRailDirection(world, pos, state, minecart);
 		EnumFacing facing = state.getValue(FACING);
-		if (dir == BlockRailBase.EnumRailDirection.EAST_WEST) {
-			if (facing == EnumFacing.EAST) {
-				minecart.motionX += this.getRailMaxSpeed(world, minecart, pos) / 8;
-			} else {
-				minecart.motionX += -this.getRailMaxSpeed(world, minecart, pos) / 8;
-			}
-		} else if (dir == BlockRailBase.EnumRailDirection.NORTH_SOUTH) {
-			if (facing == EnumFacing.SOUTH) {
-				minecart.motionZ += this.getRailMaxSpeed(world, minecart, pos) / 8;
-			} else {
-				minecart.motionZ += -this.getRailMaxSpeed(world, minecart, pos) / 8;
-			}
+		if (facing == EnumFacing.EAST) {
+			minecart.motionX += this.getRailMaxSpeed(world, minecart, pos) / 8;
+		}
+		else if (facing == EnumFacing.WEST) {
+			minecart.motionX += -this.getRailMaxSpeed(world, minecart, pos) / 8;
+		}
+		else if (facing == EnumFacing.SOUTH) {
+			minecart.motionZ += this.getRailMaxSpeed(world, minecart, pos) / 8;
+		}
+		else {
+			minecart.motionZ += -this.getRailMaxSpeed(world, minecart, pos) / 8;
 		}
 	}
 	
@@ -145,7 +144,7 @@ public abstract class BlockRailCustomBase extends BlockRailBase {
 			return isSameRailWithPower(world, new BlockPos(x, y, z), p_176566_4_, p_176566_5_, dir) || isSameRailWithPower(world, new BlockPos(x, y - 1, z), p_176566_4_, p_176566_5_, dir);
 		}
 	}
-
+	
 	private boolean isSameRailWithPower(World world, BlockPos pos, boolean p_176567_3_, int distance, EnumRailDirection dir) {
 		IBlockState state = world.getBlockState(pos);
 

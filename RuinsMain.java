@@ -39,7 +39,7 @@ public class RuinsMain {
 	
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		Logger.getGlobal().log(Level.INFO, "[!] Starting up Ruins mod...");
+		//Logger.getGlobal().log(Level.INFO, "[!] Starting up Ruins mod...");
 		proxy.preInit(event);
 		MinecraftForge.EVENT_BUS.register(proxy);
 	}

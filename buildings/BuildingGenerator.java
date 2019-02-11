@@ -23,6 +23,9 @@ public class BuildingGenerator {
 	private static final double BUILDING_TYPE_DIGIT = 1d / 1d;
 	private static final double BUILDING_NUMBER_DIGIT = 1d / 10000d;
 	private static final double BUILDING_ROTATION_DIGIT = 1d / 100000d;
+	
+	private static final int X_SHIFT = 1;
+	private static final int Z_SHIFT = 1;
     
     private final Template[] T_ROADS;
     private final Template[] T_HOUSES;
@@ -30,6 +33,7 @@ public class BuildingGenerator {
     private final Template[] T_SPAWN;
     private final Template[] T_CITY;
     private final Template[] T_RAILS;
+    private final Template[] T_DEBUG;
     
   //TODO build more houses and parks
     private final String[] P_SPAWN = {
@@ -67,6 +71,10 @@ public class BuildingGenerator {
     		"rails_1_1_3"
     };
     
+    private final String[] P_DEBUG = {
+    		"test_1_1_1"
+    };
+    
 	
 	public BuildingGenerator(OpenSimplexNoise nB, TemplateManager tm, MinecraftServer ms) {
 		noiseBuilding = nB;
@@ -80,6 +88,7 @@ public class BuildingGenerator {
 		T_PARKS = new Template[P_PARKS.length];
 		T_CITY = new Template[P_CITY.length];
 		T_RAILS = new Template[P_RAILS.length];
+		T_DEBUG = new Template[P_DEBUG.length];
 		
 		for (int i = 0; i < P_SPAWN.length; i++) { T_SPAWN[i] = getTemplateFromFile(P_SPAWN[i]); }//Load all spawn buildings to templates
 		for (int i = 0; i < P_ROADS.length; i++) { T_ROADS[i] = getTemplateFromFile(P_ROADS[i]); }//Load all roads to templates
@@ -88,14 +97,16 @@ public class BuildingGenerator {
 		for (int i = 0; i < P_CITY.length; i++) { T_CITY[i] = getTemplateFromFile(P_CITY[i]); }//Load all city tiles to templates
 		for (int i = 0; i < P_RAILS.length; i++) { T_RAILS[i] = getTemplateFromFile(P_RAILS[i]); }//Load all rail tiles to templates
 		for (int i = 0; i < P_PARKS.length; i++) { T_HOUSES[i + P_HOUSES.length] = T_PARKS[i]; }//Adds park tiles to house tile set.
-		
+		for (int i = 0; i < P_DEBUG.length; i++) { T_DEBUG[i] = getTemplateFromFile(P_DEBUG[i]); }//Load all debug tiles to templates
 	}
 	
-public Template getBuilding(int x, int z) {
+	public Template getBuilding(int x, int z) {
+		
+		if (true) return T_DEBUG[0];
 		
 		//shift the buildings back
-		x -= 2;
-		z -= 2;
+		x += X_SHIFT;
+		z += Z_SHIFT;
 		if (x == 0 && z == 0) { return T_SPAWN[0]; }//main spawn building
 		if (x <= 1 && z <= 1 && x >= -1 && z >= -1) { return T_SPAWN[1]; }//outer spawn tiles
 		
@@ -125,17 +136,23 @@ public Template getBuilding(int x, int z) {
 	
 	public Template getRails(int x, int z) {
 		
-		//shift the buildings back
-		x -= 2;
-		z -= 2;
 		if (! hasRails(x, z)) return null;
 		
+		
+		//shift the buildings back
+		x += X_SHIFT;
+		z += Z_SHIFT;
+		
 		if (Math.abs(x) % 4 == 2 && Math.abs(z) % 4 == 2) { return T_RAILS[2]; }//station
-		if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) { return T_ROADS[0]; }//straight
+		if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) { return T_RAILS[0]; }//straight
 		return T_RAILS[1];//should never happen
 	}
 	
 	public boolean hasRails(int x, int z) {
+		//shift buildings back
+		x += X_SHIFT;
+		z += Z_SHIFT;
+		
 		if (Math.abs(x) % 4 == 2 && Math.abs(z) % 4 == 2) return true;//intersection
 		if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) return true;//straight road
 		return false;
@@ -149,8 +166,8 @@ public Template getBuilding(int x, int z) {
 		PlacementSettings ps = new PlacementSettings();
 		
 		//shift buildings back.
-		x -= 2;
-		z -= 2;
+		x += X_SHIFT;
+		z += Z_SHIFT;
 		
 		
 		//Spawn

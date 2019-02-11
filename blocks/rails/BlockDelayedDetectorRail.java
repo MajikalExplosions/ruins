@@ -133,12 +133,6 @@ public class BlockDelayedDetectorRail extends BlockRailCustomBase {
         }
     }
     
-    @Nonnull
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, POWERED, SHAPE, FACING);
-	}
-    
     protected void updateConnectedRails(World worldIn, BlockPos pos, IBlockState state, boolean powered)
     {
         BlockRailBase.Rail blockrailbase$rail = new BlockRailBase.Rail(worldIn, pos, state);
