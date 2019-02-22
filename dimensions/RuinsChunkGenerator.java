@@ -26,11 +26,13 @@ public class RuinsChunkGenerator implements IChunkGenerator {
     private Random random;
     private Biome[] biomesForGeneration;
     
-    private OpenSimplexNoise noiseMainA, noiseMainB;
+    private OpenSimplexNoise noiseMainA, noiseMainB, noiseRoofA, noiseRoofB;
     
     
     private static final double MAIN_SCALE_A = 1d / 8d;
     private static final double MAIN_SCALE_B = 1d / 4d;
+    private static final double ROOF_SCALE_A = 1d / 8d;
+    private static final double ROOF_SCALE_B = 1d / 1d;
 
     public RuinsChunkGenerator(World w) {
     	//Logger.getGlobal().log(Level.INFO, "[!] Initializing chunk generator...");
@@ -41,6 +43,8 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         
         noiseMainA = new OpenSimplexNoise(random.nextLong());
         noiseMainB = new OpenSimplexNoise(random.nextLong());
+        noiseRoofA = new OpenSimplexNoise(random.nextLong());
+        noiseRoofB = new OpenSimplexNoise(random.nextLong());
     }
     
     @Override
@@ -49,12 +53,13 @@ public class RuinsChunkGenerator implements IChunkGenerator {
         ChunkPrimer chunkprimer = new ChunkPrimer();
         
         //Get heightmap
-        double[] heightmap = new double[256];
+        double[] heightmap = new double[256],  roofHeightmap = new double[256];
         for (int x2 = 0; x2 < 16; x2++) {
             for (int z2 = 0; z2 < 16; z2++) {
             	heightmap[x2 * 16 + z2] = noiseMainA.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_A, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_A) / 3 * 2;
             	heightmap[x2 * 16 + z2] += noiseMainB.eval((double) ((double)x + ((double)x2 / 16)) * MAIN_SCALE_B, (double) ((double)z + ((double)z2 / 16d)) * MAIN_SCALE_B) / 3;
-            	
+            	roofHeightmap[x2 * 16 + z2] = noiseRoofA.eval((double) ((double)x + ((double)x2 / 16)) * ROOF_SCALE_A, (double) ((double)z + ((double)z2 / 16d)) * ROOF_SCALE_A);
+            	roofHeightmap[x2 * 16 + z2] *= noiseRoofB.eval((double) ((double)x + ((double)x2 / 16)) * ROOF_SCALE_B, (double) ((double)z + ((double)z2 / 16d)) * ROOF_SCALE_B) * 3d / 4d + 0.25d;
             }
     	}
         
@@ -84,6 +89,12 @@ public class RuinsChunkGenerator implements IChunkGenerator {
                 BiomeWasteland biome = (BiomeWasteland) biomesForGeneration[x2 * 16 + z2];//Because there's only one biome to begin with
                 biome.generateBiomeBlocks(world, random, chunkprimer, x * 16 + x2, z * 16 + z2, depthBuffer[z2 + x2 * 16]);
                 
+                //roof
+                chunkprimer.setBlockState(x2, 255, z2, Blocks.BEDROCK.getDefaultState());
+                currentHeight = (int) (roofHeightmap[x2 * 16 + z2] * 26D + 230D);
+                for (int i = 254; i >= currentHeight; i--) {
+                	chunkprimer.setBlockState(x2, i, z2, Blocks.STONE.getDefaultState());
+                }
             }
     	}
         

@@ -32,8 +32,8 @@ public class CityWorldGenerator implements IWorldGenerator {
 		buildingGenerator.getBuilding(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), BUILDING_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
 		
 		//Place rails
-		//ps = buildingGenerator.getPlacementSettings(x, z);
-		//if (buildingGenerator.hasRails(x, z)) buildingGenerator.getRails(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), RAILS_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
+		ps = buildingGenerator.getPlacementSettings(x, z);
+		if (buildingGenerator.hasRails(x, z)) buildingGenerator.getRails(x, z).addBlocksToWorldChunk(world, new BlockPos(x * 16 + buildingGenerator.getXOffset(ps.getRotation()), RAILS_Y_VALUE, z * 16 + buildingGenerator.getZOffset(ps.getRotation())), ps);
         
 	}
 	

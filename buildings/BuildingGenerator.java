@@ -110,8 +110,8 @@ public class BuildingGenerator {
 		if (x == 0 && z == 0) { return T_SPAWN[0]; }//main spawn building
 		if (x <= 1 && z <= 1 && x >= -1 && z >= -1) { return T_SPAWN[1]; }//outer spawn tiles
 		
-		//if (Math.abs(x) % 4 == 2 && Math.abs(z) % 4 == 2) { return T_ROADS[1]; }//intersection
-		//if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) { return T_ROADS[0]; }//straight road
+		if (Math.abs(x) % 4 == 2 && Math.abs(z) % 4 == 2) { return T_ROADS[1]; }//intersection
+		if (Math.abs(x) % 4 == 2 || Math.abs(z) % 4 == 2) { return T_ROADS[0]; }//straight road
 		
 		
 		//bNumber is between 0 and 1
